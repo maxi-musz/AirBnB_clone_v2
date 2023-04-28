@@ -1,40 +1,41 @@
 #!/usr/bin/python3
+"""Flask framework
+"""
+from flask import Flask
 
-from flask import Flask, abort
 app = Flask(__name__)
 
 
-@app.route('/')
-def index():
+@app.route("/", strict_slashes=False)
+def hello_world():
+    """return hello hbhb
+    """
     return "Hello HBNB!"
 
 
-@app.route('/hbnb')
-def hbnb():
+@app.route("/hbnb", strict_slashes=False)
+def HBNB():
+    """return HBNB"""
     return "HBNB"
 
 
-@app.route('/c/<string:s>')
-def c(s):
-    new_s = s.replace("_", " ")
-    return "C {}".format(new_s)
+@app.route('/c/<text>', strict_slashes=False)
+def text(text):
+    """return text given"""
+    return "C {}".format(text.replace("_", " "))
 
 
-@app.route('/python', strict_slashes=False)
-@app.route('/python/<string:s>')
-def python(s="is cool"):
-    new_s = s.replace("_", " ")
-    return "Python {}".format(new_s)
+@app.route('/python/', defaults={'text': 'is_cool'})
+@app.route('/python/<text>', strict_slashes=False)
+def display(text):
+    """display “Python ”, followed by the value of the text"""
+    return "Python {}".format(text.replace("_", " "))
 
 
-@app.route('/number/<n>')
-def number(n):
-    try:
-        n = int(n)
-        return "{} is a number".format(n)
-    except:
-        abort(404)
-
+@app.route('/number/<int:n>', strict_slashes=False)
+def num_display(n):
+    """display “n is a number” only"""
+    return "{} is a number".format(n)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run()
