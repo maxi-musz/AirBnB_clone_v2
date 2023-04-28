@@ -1,23 +1,35 @@
 #!/usr/bin/python3
-import os
+"""
+    instantiates the storage system, and defines
+    dummy classes for further use
+"""
+from models.engine.file_storage import FileStorage
+from models.engine.db_storage import DBStorage
+
 from models.base_model import BaseModel
-from models.base_model import Base
-from models.user import User
-from models.amenity import Amenity
 from models.city import City
-from models.place import Place
-from models.state import State
 from models.review import Review
-from models.engine import file_storage
-from models.engine import db_storage
+from models.state import State
+from models.user import User
+from models.place import Place
+from models.amenity import Amenity
 
+from os import environ
 
-try:
-    if os.environ['HBNB_TYPE_STORAGE'] == "db":
-        storage = db_storage.DBStorage()
-    else:
-        raise KeyError
-except KeyError:
-    storage = file_storage.FileStorage()
+dummy_classes = {"BaseModel": BaseModel, "User": User,
+                 "Review": Review, "City": City,
+                 "State": State, "Place": Place,
+                 "Amenity": Amenity}
 
-storage.reload()
+dummy_tables = {"states": State, "cities": City,
+                "users": User, "places": Place,
+                "reviews": Review, "amenities": Amenity}
+
+storage_engine = environ.get("HBNB_TYPE_STORAGE")
+
+if (storage_engine == "db"):
+    storage = DBStorage()
+    storage.reload()
+else:
+    storage = FileStorage()
+    storage.reload()

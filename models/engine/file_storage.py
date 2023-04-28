@@ -1,69 +1,72 @@
 #!/usr/bin/python3
+"""
+module containing FileStorage used for file storage
+"""
 import json
-from datetime import datetime
-from models import *
+import models
 
 
 class FileStorage:
+    """
+    serializes and deserializes instances to and from JSON file
+    saved into file_path
+
+    """
+
     __file_path = "file.json"
     __objects = {}
 
-    def __init__(self):
-        self.reload()
-
     def all(self, cls=None):
-        if cls is None:
-            return FileStorage.__objects
-
-        storage = {}
-        for obj_id in FileStorage.__objects:
-            obj_cls = FileStorage.__objects[obj_id].__class__.__name__
-            if cls == obj_cls:
-                storage[obj_id] = FileStorage.__objects[obj_id]
-
-        return storage
+        """
+        returns a dictionary containing every object
+        """
+        if (not cls):
+            return self.__objects
+        result = {}
+        for key in self.__objects.keys():
+            if (key.split(".")[0] == cls.__name__):
+                result.update({key: self.__objects[key]})
+        return result
 
     def new(self, obj):
-        if obj is not None:
-            FileStorage.__objects[obj.id] = obj
+        """
+        creates a new object and saves it to __objects
+        """
+        key = "{}.{}".format(type(obj).__name__, obj.id)
+        self.__objects[key] = obj
 
     def save(self):
-        store = {}
-        for k in FileStorage.__objects.keys():
-            store[k] = FileStorage.__objects[k].to_json()
-
-        with open(FileStorage.__file_path, mode="w", encoding="utf-8") as fd:
-            fd.write(json.dumps(store))
-
-    def update(self, cls, obj_id, key, new_value):
-        if obj_id not in FileStorage.__objects:
-            return 0
-
-        obj = FileStorage.__objects[obj_id]
-        setattr(obj, key, new_value)
-        return 1
+        """
+        update the JSON file to reflect any change in the objects
+        """
+        temp = {}
+        for id, obj in self.__objects.items():
+            temp[id] = obj.to_dict()
+        with open(self.__file_path, "w") as json_file:
+            json.dump(temp, json_file)
 
     def reload(self):
+        """
+        update __objects dict to restore previously created objects
+        """
         try:
-            with open(FileStorage.__file_path,
-                      mode="r+", encoding="utf-8") as fd:
-                FileStorage.__objects = {}
-                temp = json.load(fd)
-                for k in temp.keys():
-                    cls = temp[k].pop("__class__", None)
-                    cr_at = temp[k]["created_at"]
-                    cr_at = datetime.strptime(cr_at, "%Y-%m-%d %H:%M:%S.%f")
-                    up_at = temp[k]["updated_at"]
-                    up_at = datetime.strptime(up_at, "%Y-%m-%d %H:%M:%S.%f")
-                    FileStorage.__objects[k] = eval(cls)(temp[k])
-        except Exception as e:
+            with open(self.__file_path, "r") as json_file:
+                temp = json.load(json_file)
+            for id, dict in temp.items():
+                temp_instance = models.dummy_classes[dict["__class__"]](**dict)
+                self.__objects[id] = temp_instance
+        except:
             pass
 
-    def delete(self, obj=None):
-        if obj is None:
-            return
-
-        FileStorage.__objects.pop(obj.id, 0)
-
     def close(self):
-        self.save()
+        """display our HBNB data
+        """
+        self.reload()
+
+    def delete(self, obj=None):
+        """
+            delete obj from __objects if it’s inside - if obj is None,
+            the method should not do anything
+        """
+        if (obj):
+            self.__objects.pop("{}.{}".format(type(obj).__name__, obj.id))
