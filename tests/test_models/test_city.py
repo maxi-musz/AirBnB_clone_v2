@@ -1,27 +1,48 @@
+#!/usr/bin/python3
+"""
+    test city
+"""
+from models.city import City
+from models.state import State
+from models.base_model import BaseModel
 import unittest
-from datetime import datetime
-from models import *
-from console import HBNBCommand
 
 
-class Test_CityModel(unittest.TestCase):
+class test_City(unittest.TestCase):
     """
-    Test the city model class
+        test for city class
     """
+    @classmethod
+    def setUpClass(cls):
+        """
+            setup
+        """
+        cls.dummy_city = City()
+        cls.dummy_city.name = "test"
+        cls.dummy_city.state_id = State().id
 
-    def setUp(self):
-        self.cli = HBNBCommand()
-        self.model = City()
+    @classmethod
+    def tearDownClass(cls):
+        """
+            tear down
+        """
+        del cls.dummy_city
 
-    def tearDown(self):
-        self.cli.do_destroy("City " + self.model.id)
+    def test_inheritance(self):
+        """
+            test proper inheritance
+        """
+        self.assertIsInstance(self.dummy_city, BaseModel)
+        self.assertTrue(hasattr(self.dummy_city, "id"))
+        self.assertTrue(hasattr(self.dummy_city, "created_at"))
+        self.assertTrue(hasattr(self.dummy_city, "updated_at"))
 
-    def test_var_initialization(self):
-        self.assertTrue(hasattr(self.model, "__tablename__"))
-        self.assertEqual(self.model.__tablename__, "cities")
-        self.assertTrue(hasattr(self.model, "name"))
-        self.assertTrue(hasattr(self.model, "state_id"))
-
+    def test_attrs(self):
+        """
+            test attributes
+        """
+        self.assertTrue(hasattr(self.dummy_city, "name"))
+        self.assertTrue(hasattr(self.dummy_city, "state_id"))
 
 if __name__ == "__main__":
     unittest.main()

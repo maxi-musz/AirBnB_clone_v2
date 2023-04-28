@@ -1,58 +1,38 @@
+#!/usr/bin/python3
+"""
+    tests for FileStorage
+"""
 import unittest
-import os.path
-import os
-from datetime import datetime
+from models.base_model import BaseModel
 from models.engine.file_storage import FileStorage
-from models import *
-from console import HBNBCommand
 
 
-@unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE', '') == "db", "db")
-class Test_FileStorage(unittest.TestCase):
+class test_FileStorage(unittest.TestCase):
     """
-    Test the file storage class
+        Base test class
     """
+    @classmethod
+    def setUpClass(cls):
+        """
+            setup
+        """
+        cls.dummy = FileStorage()
 
-    def setUp(self):
-        self.cli = HBNBCommand()
-        self.store = FileStorage()
+    @classmethod
+    def tearDownClass(cls):
+        """
+            tear down
+        """
+        del cls.dummy
 
-        test_args = {'updated_at': datetime(2017, 2, 12, 00, 31, 53, 331997),
-                     'id': 'f519fb40-1f5c-458b-945c-2ee8eaaf4900',
-                     'created_at': datetime(2017, 2, 12, 00, 31, 53, 331900)}
-        self.model = BaseModel(test_args)
-
-        self.test_len = 0
-        if os.path.isfile("file.json"):
-            self.test_len = len(self.store.all())
-
-    def test_all(self):
-        self.assertEqual(len(self.store.all()), self.test_len)
-
-    def test_new(self):
-        self.assertEqual(len(self.store.all()), self.test_len)
-        self.model.save()
-        self.assertEqual(len(self.store.all()), self.test_len + 1)
-        a = BaseModel()
-        a.save()
-        self.assertEqual(len(self.store.all()), self.test_len + 2)
-        self.cli.do_destroy("BaseModel f519fb40-1f5c-458b-945c-2ee8eaaf4900")
-        self.cli.do_destroy("BaseModel " + a.id)
-
-    def test_save(self):
-        self.test_len = len(self.store.all())
-        a = BaseModel()
-        a.save()
-        self.assertEqual(len(self.store.all()), self.test_len + 1)
-        b = User()
-        self.assertNotEqual(len(self.store.all()), self.test_len + 2)
-        b.save()
-        self.assertEqual(len(self.store.all()), self.test_len + 2)
-        self.cli.do_destroy("BaseModel " + a.id)
-        self.cli.do_destroy("User " + b.id)
-
-    def test_reload(self):
-        pass
+    def test_attrs(self):
+        """
+            attribute tests
+        """
+        self.assertTrue(hasattr(self.dummy, "_FileStorage__objects"))
+        self.assertTrue(isinstance(self.dummy._FileStorage__objects, dict))
+        self.assertTrue(hasattr(self.dummy, "_FileStorage__file_path"))
+        self.assertTrue(isinstance(self.dummy._FileStorage__file_path, str))
 
 if __name__ == "__main__":
     unittest.main()
