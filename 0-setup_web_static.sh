@@ -1,21 +1,14 @@
 #!/usr/bin/env bash
-# script to set up clean server
-sudo apt-get update
-sudo apt-get install -y nginx
-sudo mkdir /data/
-sudo mkdir /data/web_static/
-sudo mkdir /data/web_static/releases/
-sudo mkdir /data/web_static/shared/
-sudo mkdir /data/web_static/releases/test/
-echo "<!DOCTYPE html>
-<html>
-  <head>
-  </head>
-  <body>
-    Holberton School
-  </body>
-</html>" | sudo tee /data/web_static/releases/test/index.html
-sudo ln -fs /data/web_static/releases/test/ /data/web_static/current
-sudo chown -R ubuntu:ubuntu /data/
-sudo sed -i '39 i\ \tlocation /hbnb_static {\n\t\talias /data/web_static/current;\n\t}\n' /etc/nginx/sites-enabled/default
+# set up dummy html
+
+server="\n\tlocation /hbnb_static {\n\t\talias /data/web_static/current/;\n\t}"
+file="/etc/nginx/sites-available/default"
+sudo apt-get update -y
+sudo apt-get install nginx -y
+sudo mkdir -p "/data/web_static/releases/test/"
+sudo mkdir "/data/web_static/shared/"
+echo "Holberton" > "/data/web_static/releases/test/index.html"
+rm -f "/data/web_static/current"; ln -s "/data/web_static/releases/test/" "/data/web_static/current"
+sudo chown -hR ubuntu:ubuntu "/data/"
+sudo sed -i "29i\ $server" "$file"
 sudo service nginx restart
